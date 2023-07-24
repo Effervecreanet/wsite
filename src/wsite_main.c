@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
   memset(&sain_addr, 0, sizeof(struct sockaddr_in));
   memset(&sain_addr_http2https, 0, sizeof(struct sockaddr_in));
 
-  if (argc == 1) {
+  if (argc == 11) {
     usage(argv[0]);
     exit(3);
   }
