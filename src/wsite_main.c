@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
   memset(&sain_addr, 0, sizeof(struct sockaddr_in));
   memset(&sain_addr_http2https, 0, sizeof(struct sockaddr_in));
 
-  if (argc == 11) {
+  if (argc < 11) {
     usage(argv[0]);
     exit(3);
   }
@@ -355,20 +355,23 @@ int main(int argc, char *argv[]) {
       }
 
     next_http_req_https:
-      /* Log client hostname in logbuff */
-      memset(logbuff, 0, sizeof(logbuff));
-      set_log_date_now();
-      sprintf(logbuff, "%s:oncoming:", log_date_now);
-
       memset(&rline, 0, sizeof(struct request_line));
       if (recv_request_line(infdusr2, &rline) < 0) {
-        strcat(logbuff, "bad_request:cannot_receive_request_line\n");
+        memset(logbuff, 0, sizeof(logbuff));
+	set_log_date_now();
+	sprintf(logbuff, "%s - - [%s] \"\" 400\n",
+			inet_ntoa(usrinaddr.sin_addr),
+			log_date_now);
         fprintf(fp_log, "%s", logbuff);
         tcp_close(infdusr2);
         exit(0);
       }
       if (http_version_ok(rline.version) < 0) {
-        strcat(logbuff, "bad_request:wrong_http_version\n");
+        memset(logbuff, 0, sizeof(logbuff));
+	set_log_date_now();
+	sprintf(logbuff, "%s - - [%s] \"\" 400\n",
+			inet_ntoa(usrinaddr.sin_addr),
+			log_date_now);
         fprintf(fp_log, "%s", logbuff);
         tcp_close(infdusr2);
         exit(0);
@@ -380,7 +383,14 @@ int main(int argc, char *argv[]) {
         rline.facebook = 1;
 
       if ((i = match_resource(rline.resource)) < 0) {
-        strcat(logbuff, "bad_request:unknown_requested_resource\n");
+        memset(logbuff, 0, sizeof(logbuff));
+	set_log_date_now();
+        sprintf(logbuff, "%s - - [%s] \"%s %s %s\" 404\n",
+			inet_ntoa(usrinaddr.sin_addr),
+			log_date_now,
+			rline.method,
+			rline.resource,
+			rline.version);
         fprintf(fp_log, "%s", logbuff);
         tcp_close(infdusr2);
         exit(0);
@@ -397,7 +407,13 @@ int main(int argc, char *argv[]) {
       } else if (strcmp(rline.method, HTTP_METHOD_HEAD) == 0) {
         wsresp.send_content = 0;
       } else {
-        strcat(logbuff, "bad_request:unknown_method\n");
+        memset(logbuff, 0, sizeof(logbuff));
+	set_log_date_now();
+        sprintf(logbuff, "%s - - [%s] \"%s %s %s\" 405\n",
+			inet_ntoa(usrinaddr.sin_addr),
+			rline.method,
+			rline.resource,
+			rline.version);
         fprintf(fp_log, "%s", logbuff);
         tcp_close(infdusr2);
         exit(0);
@@ -405,7 +421,14 @@ int main(int argc, char *argv[]) {
 
       memset(&hdr_nv, 0, sizeof(struct header_nv) * HEADER_NV_MAX_SIZE);
       if (recv_header_nv(infdusr2, hdr_nv) < 0) {
-        strcat(logbuff, "bad_request:cannot_receive_http_header\n");
+	memset(logbuff, 0, sizeof(logbuff));
+	set_log_date_now();
+        sprintf(logbuff, "%s - - [%s] \"%s %s %s\" 400\n",
+			inet_ntoa(usrinaddr.sin_addr),
+			log_date_now,
+			rline.method,
+			rline.resource,
+			rline.version);
         fprintf(fp_log, "%s", logbuff);
         tcp_close(infdusr2);
         exit(0);
@@ -413,33 +436,28 @@ int main(int argc, char *argv[]) {
       if (wsite_handle(&wsresp, hdr_nv, &rline) > 0) {
         ret = wsite_send(infdusr2, &wsresp);
         if (ret > 0) {
-          int iname;
-
-          strcat(logbuff, "sent_ok \"");
-          strcat(logbuff, wsresp.entry->resource);
-          strcat(logbuff, "\" \"");
-
-          if (ret > 2)
-            sprintf(&logbuff[strlen(logbuff)], "range(%d)\" ", ret);
-
-          if ((iname = nv_find_name_client(hdr_nv, "User-Agent")) > -1) {
-            strcat(logbuff, hdr_nv[iname].value.v);
-            strcat(logbuff, "\"");
-            if ((iname = nv_find_name_client(hdr_nv, "Referer")) > -1) {
-              strcat(logbuff, " \"");
-              strcat(logbuff, hdr_nv[iname].value.v);
-              strcat(logbuff, "\"");
-            }
-          }
-
-          strcat(logbuff, "\n");
-          fprintf(fp_log, "%s", logbuff);
-        } else {
-          strcat(logbuff, "bad_request:send_error\n");
-          fprintf(fp_log, "%s", logbuff);
+		int iname;
+		memset(logbuff, 0, sizeof(logbuff));
+		set_log_date_now();
+		sprintf(logbuff, "%s - - [%s] \"%s %s %s\" 200 %d",
+			inet_ntoa(usrinaddr.sin_addr),
+			log_date_now,
+			rline.method,
+			rline.resource,
+			rline.version,
+			ret);
+		strcat(logbuff, "\n");
+		fprintf(fp_log, "%s", logbuff);
         }
       } else {
-        strcat(logbuff, "bad_request:handle_error\n");
+	memset(logbuff, 0, sizeof(logbuff));
+	set_log_date_now();
+        sprintf(logbuff, "%s - - [%s] \"%s %s %s\" 500\n",
+			inet_ntoa(usrinaddr.sin_addr),
+			log_date_now,
+			rline.method,
+			rline.resource,
+			rline.version);
         fprintf(fp_log, "%s", logbuff);
         tcp_close(infdusr2);
         exit(0);
