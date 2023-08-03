@@ -360,6 +360,7 @@ int main(int argc, char *argv[]) {
         memset(logbuff, 0, sizeof(logbuff));
 	set_log_date_now();
 	sprintf(logbuff, "%s - - [%s] \"\" 400 0\n",
+
 			inet_ntoa(usrinaddr.sin_addr),
 			log_date_now);
         fprintf(fp_log, "%s", logbuff);
@@ -370,6 +371,7 @@ int main(int argc, char *argv[]) {
         memset(logbuff, 0, sizeof(logbuff));
 	set_log_date_now();
 	sprintf(logbuff, "%s - - [%s] \"\" 400 0\n",
+
 			inet_ntoa(usrinaddr.sin_addr),
 			log_date_now);
         fprintf(fp_log, "%s", logbuff);
@@ -410,6 +412,7 @@ int main(int argc, char *argv[]) {
         memset(logbuff, 0, sizeof(logbuff));
 	set_log_date_now();
         sprintf(logbuff, "%s - - [%s] \"%s %s %s\" 405 0\n",
+
 			inet_ntoa(usrinaddr.sin_addr),
 			rline.method,
 			rline.resource,
@@ -423,7 +426,9 @@ int main(int argc, char *argv[]) {
       if (recv_header_nv(infdusr2, hdr_nv) < 0) {
 	memset(logbuff, 0, sizeof(logbuff));
 	set_log_date_now();
+
         sprintf(logbuff, "%s - - [%s] \"%s %s %s\" 400 0\n",
+
 			inet_ntoa(usrinaddr.sin_addr),
 			log_date_now,
 			rline.method,
@@ -454,6 +459,7 @@ int main(int argc, char *argv[]) {
 	memset(logbuff, 0, sizeof(logbuff));
 	set_log_date_now();
         sprintf(logbuff, "%s - - [%s] \"%s %s %s\" 500 0\n",
+
 			inet_ntoa(usrinaddr.sin_addr),
 			log_date_now,
 			rline.method,
