@@ -101,6 +101,7 @@ static int wsite_send_content_range(int infdusr,
   char buffer[1024];
   ssize_t sent;
   ssize_t total_sent = 0;
+  int8_t ret = 0;
 
   fd = open(wsresp->entry->resource, O_RDONLY);
   if (fd < 0) {
@@ -146,6 +147,8 @@ static int wsite_send_content(int infdusr, struct wsite_response *wsresp) {
   ssize_t readb;
   int fd;
   char buffer[1024];
+  int ret = 0;
+  int sent = 0;
 
   if (strcmp(wsresp->entry->type, "text/html") == 0) {
     fd = open(wsresp->wanted_resource.local_resource, O_RDONLY);
@@ -165,13 +168,15 @@ static int wsite_send_content(int infdusr, struct wsite_response *wsresp) {
 
   do {
     readb = read(fd, buffer, 1024);
-    if (readb == 0)
+    if (readb <= 0)
       break;
-  } while (send(infdusr, buffer, (size_t)readb, 0) > 0);
+    ret += readb;
+    sent = send(infdusr, buffer, (size_t)readb, 0); 
+  } while (sent > -1);
 
   close(fd);
 
-  return (readb == 0) ? 1 : -1;
+  return ret;
 }
 
 /* Prepare to send full content or only header content according to
@@ -261,8 +266,8 @@ int wsite_send(int infdusr, struct wsite_response *wsresp) {
   if (wsresp->send_content) {
     if (wsresp->wanted_resource.range == true) {
       return wsite_send_content_range(infdusr, wsresp);
-    } else if (wsite_send_content(infdusr, wsresp) < 0) {
-      return -1;
+    } else {
+      return wsite_send_content(infdusr, wsresp); 
     }
   }
 

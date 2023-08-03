@@ -23,7 +23,7 @@ void set_log_date_now(void) {
   tmv = gmtime(&now);
 
   memset(log_date_now, 0, LOG_DATE_NOW_SIZE);
-  strftime(log_date_now, LOG_DATE_NOW_SIZE, "%d.%b.%Y:%T", tmv);
+  strftime(log_date_now, LOG_DATE_NOW_SIZE, "%d/%b/%Y:%T -0600", tmv);
 
   return;
 }

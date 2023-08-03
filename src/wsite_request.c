@@ -197,10 +197,10 @@ int recv_request_line(int infdusr, struct request_line *rline) {
       REQUEST_LINE_VERSION_MAX_SIZE - 2)
     return -1;
 
-  /*
+     /*
      printf("st:%s:%s:%s:\n", rline->method, rline->resource,
      rline->version);
-   */
+     */
 
   if (recv(infdusr, &c, 1, 0) != 1 && (c != '\r' && c != '\n'))
     return -1;
