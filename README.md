@@ -9,5 +9,6 @@ not iOS. It comes with strict firewall
 handled by the match_resource() function.
 installation:
 sh make.sh
+You have to create content directory.
 FL
 
