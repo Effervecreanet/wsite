@@ -7,5 +7,7 @@ on mobile and desktop. See with
 Delivering videos is compat with edge but
 not iOS. It comes with strict firefall
 handled by the match_resource() function.
+installation:
+sh make.sh
 FL
 
