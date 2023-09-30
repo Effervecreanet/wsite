@@ -175,6 +175,10 @@ int main(int argc, char *argv[]) {
     case 'l':
       memset(log_filename, 0, NI_MAXHOST + 4);
       strncpy(log_filename, optarg, NI_MAXHOST + 3);
+      if ((*(log_filename + strlen(log_filename) - 1)) == '/') {
+	usage(argv[0]);
+	exit(4);
+      }
       break;
     default:
       usage(argv[0]);
