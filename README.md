@@ -8,7 +8,8 @@ Delivering videos is compat with edge but
 not iOS. It comes with strict firewall
 handled by the match_resource() function.
 You have to recompile it each time you
-add content in wsite_content.c .
+add content in wsite_content.c . It
+works on GNU/Linux.
 
 compilation:sh make.sh
 
