@@ -11,5 +11,6 @@ You have to recompile it each time you
 add content in wsite_content.c .
 
 compilation:sh make.sh
+
 FL
 
